@@ -5,8 +5,8 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import User, AuctionListing
-from .forms import CreateListingForm
+from .models import User, AuctionListing, Comment
+from .forms import CreateListingForm, BidForm
 
 
 def index(request):
@@ -71,11 +71,29 @@ def listing_page(request, listing_id):
     """
     View for particular auction listing page
     """
+
     listing = AuctionListing.objects.get(id=listing_id)
+    comments = Comment.objects.filter(listing=listing_id)
+
+    if request.method == "POST":
+        if 'new_comment' in request.POST:
+            comment = request.POST.get('new_comment')
+            new_comment = Comment.objects.create(
+                text=comment,
+                user=User.objects.get(username=request.user.username),
+                listing=listing
+            )
+            new_comment.save()
+
+        return HttpResponseRedirect(reverse('listing-page', args=[listing_id]))
 
     return render(request, 'auctions/listing_page.html', {
         'listing': listing,
+        # 'bidding_form': BidForm(),
+        'comments': comments,
+
     })
+
 
 @login_required
 def create_listing(request):
@@ -83,10 +101,10 @@ def create_listing(request):
     View for create new listing
     """
     if request.method == "POST":
-
         new_listing = AuctionListing.objects.create(
             title=request.POST['title'],
             description=request.POST['description'],
+            img_url=request.POST['img_url'],
             starting_bid=request.POST['starting_bid'],
             seller=User.objects.get(username=request.user.username)
         )

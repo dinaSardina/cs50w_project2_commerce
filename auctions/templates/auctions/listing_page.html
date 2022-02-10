@@ -11,5 +11,27 @@
         <li>Category:</li>
     </ul>
 
+    <h4>Comments</h4>
 
-{% endblock %}
+        {% if user.is_authenticated %}
+            <form action="" method="post">
+                {% csrf_token %}
+                <input type="text" name="new_comment" placeholder="Enter your comment">
+                <input type="submit" value="Add comment">
+            </form>
+        {% else %}
+            <a href="{% url 'login'%}?next={{ request.get_full_path }}">Log in</a> if you want to leave a comment
+        {% endif %}
+
+    {% if comments %}
+        {% for comment in comments %}
+        <div class="w-25" style="background-color: #eee;">
+            <p>{{ comment.user }}: {{ comment.text}}</p>
+         </div>
+        {% endfor %}
+    {% else %}
+    <hr>
+    <p>No comments yet</p>
+    {% endif %}
+
+    {% endblock %}

@@ -28,6 +28,19 @@ class Bids(models.Model):
     Model for user's bids
     """
     value = models.DecimalField(max_digits=6, decimal_places=2)
-    listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, related_name="bids")
-    bidder = models.ForeignKey(User, on_delete=models.CASCADE)
+    # listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, related_name="bids")
+    # bidder = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'A bid {self.value} for {self.listing}'
+
+
+class Comment(models.Model):
+    """
+    Comments to auction listings from users
+    """
+    text = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE)
+
 
