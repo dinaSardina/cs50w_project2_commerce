@@ -17,7 +17,8 @@ class AuctionListing(models.Model):
     description = models.TextField()
     img_url = models.URLField('Image', blank=True)
     starting_bid = models.DecimalField(max_digits=8, decimal_places=2)
-    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="items")
+    seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    watch = models.ManyToManyField(User, blank=True, related_name="watchlist")
 
     def __str__(self):
         return f'{self.id}: {self.title} - {self.starting_bid}'
@@ -42,5 +43,6 @@ class Comment(models.Model):
     text = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE)
+
 
 

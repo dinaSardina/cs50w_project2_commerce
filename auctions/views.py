@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
 from .models import User, AuctionListing, Comment
-from .forms import CreateListingForm, BidForm
+from .forms import CreateListingForm
 
 
 def index(request):
@@ -106,7 +106,7 @@ def create_listing(request):
             description=request.POST['description'],
             img_url=request.POST['img_url'],
             starting_bid=request.POST['starting_bid'],
-            seller=User.objects.get(username=request.user.username)
+            seller=request.user
         )
 
         new_listing.save()
@@ -116,3 +116,26 @@ def create_listing(request):
     return render(request, 'auctions/create_listing.html', {
         'form': CreateListingForm(),
     })
+
+
+def switch_watchlist(request, listing_id):
+    user = request.user
+    listing = AuctionListing.objects.get(id=listing_id)
+
+    if listing not in user.watchlist.all():
+        listing.watch.add(user)
+    else:
+        user.watchlist.remove(listing)
+        user.save()
+    return HttpResponseRedirect(reverse('listing-page', args=[listing_id]))
+
+
+@login_required
+def watchlist(request):
+    user = User.objects.get(username=request.user.username)
+    user_wl = user.watchlist.all()
+    return render(request, 'auctions/watchlist.html', {
+        'watchlist': user_wl,
+    })
+
+

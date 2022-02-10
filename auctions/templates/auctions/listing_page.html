@@ -3,8 +3,14 @@
 {% block body %}
     <h2>Listing: {{ listing.title }}</h2>
 
-    {{ listing.description }}
+    {% if user.is_authenticated %}
+        <a href="{% url 'switch-w' listing.id %}" type="button" class="btn btn-secondary">Watchlist</a>
+    {% endif %}
+
+    <p>{{ listing.description }}</p>
+
     <h2>${{ listing.starting_bid }}</h2>
+
     <h4>Details</h4>
     <ul>
         <li>Listed by: <a href="">{{ listing.seller }}</a></li>
@@ -24,6 +30,7 @@
         {% endif %}
 
     {% if comments %}
+    <hr>
         {% for comment in comments %}
         <div class="w-25" style="background-color: #eee;">
             <p>{{ comment.user }}: {{ comment.text}}</p>
