@@ -4,11 +4,22 @@
     <h2>Your Watchlist</h2>
 
     {% if watchlist %}
-        <ul>
+        <div class="row">
         {% for item in watchlist %}
-            <li><a href="{% url 'listing-page' item.id %}">{{ item.title }}</a></li>
+            <div class="col-sm-3">
+                <div class="card" style="width: 18rem; margin: 0.5rem;">
+                    {% if item.img_url %}
+                        <img src="{{ item.img_url }}" class="card-img-top" alt="...">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.title }}<br>${{ item.starting_bid }}</h5>
+                        <p class="card-text">{{ item.description }}</p>
+                        <a href="{% url 'listing-page' item.id %}" class="btn btn-primary">Go to auction</a>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-        </ul>
+        </div>
 
     {% else %}
         No items in watchlist

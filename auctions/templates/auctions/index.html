@@ -4,11 +4,22 @@
     <h2>Active Listings</h2>
 
     {% if active_listings %}
-        <ul>
+        <div class="row">
         {% for listing in active_listings %}
-            <li><a href="{% url 'listing-page' listing.id %}">{{ listing.title }}</a></li>
+            <div class="col-sm-3">
+                <div class="card" style="width: 18rem; margin: 0.5rem;">
+                    {% if listing.img_url %}
+                        <img src="{{ listing.img_url }}" class="card-img-top" alt="...">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ listing.title }}<br>${{ listing.starting_bid }}</h5>
+                        <p class="card-text">{{ listing.description }}</p>
+                        <a href="{% url 'listing-page' listing.id %}" class="btn btn-primary">Go to auction</a>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-        </ul>
+        </div>
 
     {% else %}
         No active auctions
