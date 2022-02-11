@@ -7,7 +7,7 @@ from .models import AuctionListing, Bid
 class CreateListingForm(ModelForm):
     class Meta:
         model = AuctionListing
-        exclude = ['seller', 'watch']
+        exclude = ['seller', 'watch', 'winner', 'is_active']
 
 
 class NewBidForm(ModelForm):

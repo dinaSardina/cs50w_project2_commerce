@@ -19,6 +19,8 @@ class AuctionListing(models.Model):
     starting_bid = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     watch = models.ManyToManyField(User, blank=True, related_name="watchlist")
+    is_active = models.BooleanField(default=True)
+    winner = models.ForeignKey(User, blank=True, on_delete=models.SET_NULL, related_name="win", null=True)
 
     def __str__(self):
         return f'{self.id}: {self.title} - {self.starting_bid}'

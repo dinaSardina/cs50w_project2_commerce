@@ -77,6 +77,7 @@ def listing_page(request, listing_id):
     comments = Comment.objects.filter(listing=listing_id)
     user = request.user
     bids = Bid.objects.filter(listing=listing_id)
+    last_bid = bids.last()
     if bids:
         max_bid = bids.aggregate(Max('bid'))['bid__max']
         bid_count = bids.count()
@@ -88,7 +89,6 @@ def listing_page(request, listing_id):
         'listing': listing,
         'comments': comments,
         'wl': listing in user.watchlist.all() if user.is_authenticated else None,
-        'bids': bids,
         'max_bid': round(max_bid, 2),
         'bid_count': bid_count,
         'bid_form': NewBidForm(),
@@ -166,3 +166,24 @@ def watchlist(request):
     return render(request, 'auctions/watchlist.html', {
         'watchlist': user_wl,
     })
+
+
+@login_required
+def close_listing(request, listing_id):
+    listing = AuctionListing.objects.get(id=listing_id)
+    bids = Bid.objects.filter(listing=listing_id)
+    last_bid = bids.last()
+
+    if request.method == "POST":
+        if request.POST.get('yes'):
+            listing.is_active = False
+            listing.winner = last_bid.bidder
+            listing.save()
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            return HttpResponseRedirect(reverse('listing-page', args=[listing_id]))
+    return render(request, 'auctions/close_listing.html', {
+        'listing': listing,
+        'last_bid': last_bid,
+    })
+
