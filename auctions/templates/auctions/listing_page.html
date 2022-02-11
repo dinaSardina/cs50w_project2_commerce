@@ -14,7 +14,26 @@
     <p>{{ listing.description }}</p>
 
     <h2>${{ listing.starting_bid }}</h2>
-
+    <div class="alert alert-secondary" role="alert">
+      {{ bid_count }} bid(s) so far.<br>
+        Max current bid: <b>${{ max_bid }}</b>
+    </div>
+    {% if user.is_authenticated %}
+        <form action="" method="post">
+            {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+              <div>
+                {{ error_message }}
+              </div>
+            </div>
+            {% endif %}
+            {% csrf_token %}
+            {{ bid_form }}
+            <input type="submit" value="Place Bid">
+        </form>
+    {% else %}
+        <a href="{% url 'login'%}?next={{ request.get_full_path }}">Log in</a> if you want to bid in
+    {% endif %}
     <h4>Details</h4>
     <ul>
         <li>Listed by: <a href="">{{ listing.seller }}</a></li>

@@ -4,9 +4,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.db.models import Max
+from decimal import Decimal
 
-from .models import User, AuctionListing, Comment
-from .forms import CreateListingForm
+from .models import User, AuctionListing, Comment, Bid
+from .forms import CreateListingForm, NewBidForm
 
 
 def index(request):
@@ -71,9 +73,26 @@ def listing_page(request, listing_id):
     """
     View for particular auction listing page
     """
-
     listing = AuctionListing.objects.get(id=listing_id)
     comments = Comment.objects.filter(listing=listing_id)
+    user = request.user
+    bids = Bid.objects.filter(listing=listing_id)
+    if bids:
+        max_bid = bids.aggregate(Max('bid'))['bid__max']
+        bid_count = bids.count()
+    else:
+        max_bid = listing.starting_bid
+        bid_count = 0
+
+    context = {
+        'listing': listing,
+        'comments': comments,
+        'wl': listing in user.watchlist.all() if user.is_authenticated else None,
+        'bids': bids,
+        'max_bid': round(max_bid, 2),
+        'bid_count': bid_count,
+        'bid_form': NewBidForm(),
+    }
 
     if request.method == "POST":
         if 'new_comment' in request.POST:
@@ -84,16 +103,25 @@ def listing_page(request, listing_id):
                 listing=listing
             )
             new_comment.save()
+            return HttpResponseRedirect(reverse('listing-page', args=[listing_id]))
 
-        return HttpResponseRedirect(reverse('listing-page', args=[listing_id]))
+        elif 'bid' in request.POST:
+            bid = Decimal(request.POST.get('bid'))
+            if bid <= max_bid:
+                message = 'Your bid must be greater than current bid!'
+                context['error_message'] = message
+                context['bid_form'] = NewBidForm(initial={'bid': bid})
+                return render(request, 'auctions/listing_page.html', context)
 
-    user = request.user
-    return render(request, 'auctions/listing_page.html', {
-        'listing': listing,
-        'comments': comments,
-        'wl': listing in user.watchlist.all() if user.is_authenticated else None,
+            new_bid = Bid.objects.create(
+                bidder=user,
+                listing=listing,
+                bid=bid
+            )
+            new_bid.save()
+            return HttpResponseRedirect(reverse('listing-page', args=[listing_id]))
 
-    })
+    return render(request, 'auctions/listing_page.html', context)
 
 
 @login_required
@@ -138,5 +166,3 @@ def watchlist(request):
     return render(request, 'auctions/watchlist.html', {
         'watchlist': user_wl,
     })
-
-

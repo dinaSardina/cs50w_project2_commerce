@@ -16,7 +16,7 @@ class AuctionListing(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField()
     img_url = models.URLField('Image', blank=True)
-    starting_bid = models.DecimalField(max_digits=8, decimal_places=2)
+    starting_bid = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     watch = models.ManyToManyField(User, blank=True, related_name="watchlist")
 
@@ -24,16 +24,16 @@ class AuctionListing(models.Model):
         return f'{self.id}: {self.title} - {self.starting_bid}'
 
 
-class Bids(models.Model):
+class Bid(models.Model):
     """
-    Model for user's bids
+    Model reresenting user's bids
     """
-    value = models.DecimalField(max_digits=6, decimal_places=2)
-    # listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, related_name="bids")
-    # bidder = models.ForeignKey(User, on_delete=models.CASCADE)
+    bidder = models.ForeignKey(User, on_delete=models.CASCADE)
+    listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE)
+    bid = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
-        return f'A bid {self.value} for {self.listing}'
+        return f'A bid ${self.bid} from {self.bidder} for {self.listing}'
 
 
 class Comment(models.Model):
@@ -43,6 +43,3 @@ class Comment(models.Model):
     text = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE)
-
-
-
