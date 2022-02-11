@@ -4,7 +4,7 @@
     <h2>Listing: {{ listing.title }}</h2>
 
     {% if user.is_authenticated %}
-        <a href="{% url 'switch-w' listing.id %}" type="button" class="btn btn-secondary">Watchlist</a>
+        <a href="{% url 'switch-w' listing.id %}" type="button" class="btn-sm {% if wl %}btn btn-danger{% else %}btn btn-secondary{% endif %}">Watchlist</a>
     {% endif %}
 
     <p>{{ listing.description }}</p>

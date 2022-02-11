@@ -80,17 +80,18 @@ def listing_page(request, listing_id):
             comment = request.POST.get('new_comment')
             new_comment = Comment.objects.create(
                 text=comment,
-                user=User.objects.get(username=request.user.username),
+                user=request.user,
                 listing=listing
             )
             new_comment.save()
 
         return HttpResponseRedirect(reverse('listing-page', args=[listing_id]))
 
+    user = request.user
     return render(request, 'auctions/listing_page.html', {
         'listing': listing,
-        # 'bidding_form': BidForm(),
         'comments': comments,
+        'wl': listing in user.watchlist.all() if user.is_authenticated else None,
 
     })
 
