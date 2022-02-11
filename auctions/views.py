@@ -13,7 +13,7 @@ from .forms import CreateListingForm, NewBidForm
 
 def index(request):
     return render(request, "auctions/index.html", {
-        'active_listings': AuctionListing.objects.all()
+        'active_listings': AuctionListing.objects.filter(is_active=True)
     })
 
 
