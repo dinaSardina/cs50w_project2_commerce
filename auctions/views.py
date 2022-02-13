@@ -187,3 +187,13 @@ def close_listing(request, listing_id):
         'last_bid': last_bid,
     })
 
+
+@login_required
+def user_listing(request):
+    all_listings = AuctionListing.objects.filter(seller=request.user)
+    active_listings = all_listings.filter(is_active=True)
+    closed_listings = all_listings.filter(is_active=False)
+    return render(request, 'auctions/user_listings.html', {
+        'active_listings': active_listings,
+        'closed_listings': closed_listings,
+    })

@@ -1,8 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>All Active Listings</h2>
-
+    <h2>Active Listings</h2>
     {% if active_listings %}
         <div class="row">
         {% for listing in active_listings %}
@@ -24,4 +23,28 @@
     {% else %}
         No active auctions
     {% endif %}
+
+    <h2>Closed Listings</h2>
+    {% if closed_listings %}
+        <div class="row">
+        {% for listing in closed_listings %}
+            <div class="col-sm-3">
+                <div class="card" style="width: 18rem; margin: 0.5rem;">
+                    {% if listing.img_url %}
+                        <img src="{{ listing.img_url }}" class="card-img-top" alt="...">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ listing.title }}<br>${{ listing.starting_bid }}</h5>
+                        <p class="card-text">{{ listing.description }}</p>
+                        <a href="{% url 'listing-page' listing.id %}" class="btn btn-primary">Go to auction</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+
+    {% else %}
+        No closed auctions
+    {% endif %}
+
 {% endblock %}
