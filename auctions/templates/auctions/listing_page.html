@@ -1,29 +1,28 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Listing: {{ listing.title }}</h2>
-
-        {% if listing.is_active %}
-            <button type="button" class="btn btn-success" disabled>Active</button>
-            {% if listing.seller == request.user %}
-                <a href="{% url 'close' listing.id %}" type="button" class="btn btn-dark text-light">Close listing</a>
-            {% endif %}
-        {% else %}
-            <div class="alert alert-dark" role="alert">
-                Auction listing is closed.
-            </div>
-        {% endif %}
-
-
+    <h2>Listing: {{ listing.title }}
     {% if user.is_authenticated %}
         <a href="{% url 'switch-w' listing.id %}" type="button" class="btn-sm {% if wl %}btn btn-danger{% else %}btn btn-secondary{% endif %}">Watchlist</a>
-        <br>
-        {% if request.user == listing.winner %}
-            <div class="alert alert-success" role="alert">
-              <h4 class="alert-heading">Well done!</h4>
-              <p>You are win this auction!</p>
-            </div>
+    {% endif %}
+    </h2>
+
+    {% if listing.is_active %}
+        <button type="button" class="btn btn-success" disabled>Active</button>
+        {% if listing.seller == request.user %}
+            <a href="{% url 'close' listing.id %}" type="button" class="btn btn-dark text-light">Close listing</a>
         {% endif %}
+    {% else %}
+        <div class="alert alert-dark" role="alert">
+            Auction listing is closed.
+        </div>
+    {% endif %}
+
+    {% if user.is_authenticated and request.user == listing.winner %}
+        <div class="alert alert-success" role="alert">
+          <h4 class="alert-heading">Well done!</h4>
+          <p>You won this auction!</p>
+        </div>
     {% endif %}
 <p></p>
     {% if listing.img_url %}
@@ -32,26 +31,32 @@
 
     <p>{{ listing.description }}</p>
 
-    <h2>${{ listing.starting_bid }}</h2>
-    <div class="alert alert-secondary" role="alert">
-      {{ bid_count }} bid(s) so far.<br>
-        Max current bid: <b>${{ max_bid }}</b>
-    </div>
-    {% if user.is_authenticated %}
-        <form action="" method="post">
-            {% if error_message %}
-            <div class="alert alert-danger" role="alert">
-              <div>
-                {{ error_message }}
-              </div>
-            </div>
-            {% endif %}
-            {% csrf_token %}
-            {{ bid_form }}
-            <input type="submit" value="Place Bid">
-        </form>
+    {% if listing.is_active %}
+        <h2>${{ listing.starting_bid }}</h2>
+        <div class="alert alert-secondary" role="alert">
+          {{ bid_count }} bid(s) so far.<br>
+            {% if bid_count > 0 %}Max current bid: <b>${{ max_bid }}</b>{% endif %}
+        </div>
+        {% if user.is_authenticated %}
+            <form action="" method="post">
+                {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                  <div>
+                    {{ error_message }}
+                  </div>
+                </div>
+                {% endif %}
+                {% csrf_token %}
+                {{ bid_form }}
+                <input type="submit" value="Place Bid">
+            </form>
+        {% else %}
+            <a href="{% url 'login'%}?next={{ request.get_full_path }}">Log in</a> if you want to bid in
+        {% endif %}
     {% else %}
-        <a href="{% url 'login'%}?next={{ request.get_full_path }}">Log in</a> if you want to bid in
+        <div class="alert alert-secondary" role="alert">
+            Listing have been closed with last bid: <b>${{ max_bid }}</b>
+        </div>
     {% endif %}
     <h4>Details</h4>
     <ul>

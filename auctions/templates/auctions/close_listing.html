@@ -7,7 +7,10 @@
 <p>Are you sure you want to close the listing: <a href="{% url 'listing-page' listing.id %}" class="alert-link">{{ listing.title }}</a>?</p>
 <ul>
   <li>starting bid: ${{ listing.starting_bid }}</li>
-  <li>last bid: <b>${{ last_bid.bid }}</b> ({{ last_bid.bidder }})</li>
+  <li>
+    {% if last_bid %}last bid: <b>${{ last_bid.bid }}</b> ({{ last_bid.bidder }})</li>
+    {% else %} no bids yet
+    {% endif %}
 </ul>
 </div>
 
