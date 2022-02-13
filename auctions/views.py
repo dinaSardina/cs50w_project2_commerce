@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Max
 from decimal import Decimal
 
-from .models import User, AuctionListing, Comment, Bid
+from .models import User, AuctionListing, Comment, Bid, Category
 from .forms import CreateListingForm, NewBidForm
 
 
@@ -92,6 +92,7 @@ def listing_page(request, listing_id):
         'max_bid': round(max_bid, 2),
         'bid_count': bid_count,
         'bid_form': NewBidForm(),
+        'categories': listing.category.all()
     }
 
     if request.method == "POST":
@@ -137,8 +138,13 @@ def create_listing(request):
             starting_bid=request.POST['starting_bid'],
             seller=request.user
         )
-
         new_listing.save()
+
+        categories = request.POST.getlist('category')
+        for item in categories:
+            new_category = Category.objects.get(id=int(item))
+            print(category)
+            new_listing.category.add(new_category)
 
         return HttpResponseRedirect(reverse('index'))
 
@@ -196,4 +202,19 @@ def user_listing(request):
     return render(request, 'auctions/user_listings.html', {
         'active_listings': active_listings,
         'closed_listings': closed_listings,
+    })
+
+
+def category(request, category_id):
+    cur_category = Category.objects.get(id=category_id)
+    listings = cur_category.items.all()
+    return render(request, 'auctions/category.html', {
+        'listings': listings,
+        'category': cur_category,
+    })
+
+def category_list(request):
+    all_categories = Category.objects.all()
+    return render(request, 'auctions/category_list.html', {
+        'all_categories': all_categories
     })
